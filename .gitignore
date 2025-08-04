@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+Python-*-info/
+build/
+dist/
+develop-eggs/
+eggs/
+*.egg-info
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+.venv/
+env/
+myenv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Django specific
+*.sqlite3            # Database file
+/media/              # User-uploaded files
+/static/             # Collected static files (if you run collectstatic locally)
+.vscode/             # VS Code specific settings (optional, but often good to ignore)
+
+# Environment variables
+.env                 # If you use .env files for local settings
+*.env
+
+# OS-specific
+.DS_Store            # macOS
+Thumbs.db            # Windows

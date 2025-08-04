@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{% if feed_title %}{{ feed_title }}{% else %}Все публичные посты{% endif %}{% endblock %}
+
+{% block content %}
+    <h1>{% if feed_title %}{{ feed_title }}{% else %}Все публичные посты{% endif %}</h1>
+
+    {% if posts %}
+        {% for post in posts %}
+            <div class="post">
+                <h2>{{ post.title }}</h2>
+                <p class="post-meta">Опубликовано: {{ post.created_at|date:"d M Y H:i" }} автором: {{ post.author.username }}</p>
+                <div class="post-content">
+                    <p>{{ post.content|truncatechars:300 }}</p>
+                    {% if post.tags.all %}
+                        <p class="post-tags">
+                            Теги:
+                            {% for tag in post.tags.all %}
+                                <a href="{% url 'posts:posts_by_tag' tag_name=tag.name %}" class="tag-link">{{ tag.name }}</a>
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                    <p><a href="{% url 'posts:post_detail' pk=post.pk %}" class="btn">Читать далее...</a></p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="no-posts">Пока нет публичных постов.</p>
+    {% endif %}
+{% endblock %}

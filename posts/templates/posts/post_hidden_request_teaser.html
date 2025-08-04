@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Доступ ограничен - {{ post.title }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Доступ ограничен</h1>
+        <p>Вы пытаетесь получить доступ к скрытому посту.</p>
+
+        <div class="post-teaser">
+            <h2>{{ post.title }}</h2>
+            <p>Этот пост доступен только по специальному запросу к автору.</p>
+            <p>Автор: <strong>{{ post.author.username }}</strong></p>
+            <p>Опубликовано: {{ post.created_at|date:"d M Y" }}</p>
+        </div>
+
+        {% if not user.is_authenticated %}
+            <p>Пожалуйста, <a href="{% url 'login' %}">войдите</a> или <a href="{% url 'register' %}">зарегистрируйтесь</a>, чтобы получить возможность запросить доступ.</p>
+        {% else %}
+            {% if user == post.author %}
+                <p>Вы являетесь автором этого поста. Он скрыт от других пользователей.</p>
+            {% elif access_request_status == 'pending' %}
+                <p>Вы уже отправили запрос на доступ к этому посту. Статус: <strong>Ожидает рассмотрения</strong>.</p>
+            {% elif access_request_status == 'approved' %}
+                <p>Ваш запрос на доступ к этому посту был одобрен. Вы должны были увидеть полный пост.</p>
+            {% elif access_request_status == 'rejected' %}
+                <p>Ваш запрос на доступ к этому посту был <strong>отклонен</strong>.</p>
+                <p>Вы можете попробовать связаться с автором или дождаться, пока он изменит статус поста.</p>
+            {% else %}
+                <p>Нажмите кнопку ниже, чтобы отправить запрос на доступ к этому посту автору.</p>
+                <form method="post" action="{% url 'posts:request_access' post_pk=post.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Запросить доступ</button>
+                </form>
+            {% endif %}
+        {% endif %}
+
+        <div class="back-link">
+            <a href="{% url 'posts:post_list' %}" class="btn btn-secondary">Вернуться ко всем постам</a>
+        </div>
+    </div>
+{% endblock %}

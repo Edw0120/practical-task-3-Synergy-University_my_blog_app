@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }} - Мой Блог{% endblock %}
+
+{% block content %}
+    <div class="post-header">
+        <h1>{{ post.title }}</h1>
+        <p class="post-meta">
+            Опубликовано: {{ post.created_at|date:"d M Y H:i" }} автором:
+            <strong>{{ post.author.username }}</strong>
+
+            {% if user.is_authenticated and user != post.author %}
+                {% if is_following %}
+                    <a href="{% url 'posts:unfollow_user' user_id=post.author.pk %}" class="btn btn-secondary btn-sm">Отписаться</a>
+                {% else %}
+                    <a href="{% url 'posts:follow_user' user_id=post.author.pk %}" class="btn btn-success btn-sm">Подписаться</a>
+                {% endif %}
+            {% endif %}
+
+            {% if post.updated_at != post.created_at %}
+                (Обновлено: {{ post.updated_at|date:"d M Y H:i" }})
+            {% endif %}
+        </p>
+        {% if post.tags.all %}
+            <p class="post-tags">
+                Теги:
+                {% for tag in post.tags.all %}
+                    <a href="{% url 'posts:posts_by_tag' tag_name=tag.name %}" class="tag-link">{{ tag.name }}</a>
+                {% endfor %}
+            </p>
+        {% endif %}
+        {% if user.is_authenticated and user == post.author %}
+            <a href="{% url 'posts:post_edit' pk=post.pk %}" class="btn btn-secondary">Редактировать</a>
+            <a href="{% url 'posts:post_delete' pk=post.pk %}" class="btn btn-danger">Удалить</a>
+        {% endif %}
+    </div>
+    <div class="post-content">
+        {{ post.content|linebreaksbr }}
+    </div>
+
+    <div class="back-link">
+        <a href="{% url 'posts:post_list' %}" class="btn btn-secondary">Вернуться ко всем постам</a>
+    </div>
+
+    <hr> {# Разделитель для комментариев #}
+
+    <h2>Комментарии ({{ comments.count }})</h2>
+    <div class="comments-section">
+        {% if comments %}
+            {% for comment in comments %}
+                <div class="comment">
+                    <p class="comment-meta">
+                        <strong>{{ comment.author.username }}</strong>
+                        <span class="comment-date">{{ comment.created_at|date:"d M Y H:i" }}</span>
+                    </p>
+                    <p class="comment-content">{{ comment.content|linebreaksbr }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Пока нет комментариев. Будьте первым!</p>
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+        <div class="comment-form-section">
+            <h3>Оставить комментарий</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ comment_form.as_p }}
+                <button type="submit" class="btn btn-primary">Отправить комментарий</button>
+            </form>
+        </div>
+    {% else %}
+        <p>Для того чтобы оставить комментарий, пожалуйста, <a href="{% url 'login' %}">войдите</a> или <a href="{% url 'register' %}">зарегистрируйтесь</a>.</p>
+    {% endif %}
+
+{% endblock %}

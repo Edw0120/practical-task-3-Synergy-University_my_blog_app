@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+
+    {% if pending_requests %}
+        <p>Ниже представлены запросы на доступ к вашим скрытым постам, ожидающие вашего решения.</p>
+        {% for req in pending_requests %}
+            <div class="access-request-item" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 6px;">
+                <p>Пост: <strong><a href="{% url 'posts:post_detail' pk=req.post.pk %}">{{ req.post.title }}</a></strong></p>
+                <p>От: <strong>{{ req.requester.username }}</strong> (Запрошено: {{ req.requested_at|date:"d M Y H:i" }})</p>
+                <form method="post" action="{% url 'posts:approve_request' request_pk=req.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm">Одобрить</button>
+                </form>
+                <form method="post" action="{% url 'posts:reject_request' request_pk=req.pk %}" style="display: inline; margin-left: 10px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Отклонить</button>
+                </form>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Нет ожидающих запросов на доступ к вашим скрытым постам.</p>
+    {% endif %}
+{% endblock %}
